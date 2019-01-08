@@ -9,7 +9,5 @@ set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 include_directories(include/)
 
-set(sources src/main.cpp)
-
-
+file(GLOB sources "src/*.cpp")
 add_executable(ExtendedKF ${sources})
