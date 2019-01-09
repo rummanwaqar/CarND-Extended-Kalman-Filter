@@ -68,7 +68,6 @@ void Fusion::process_measurement(const MeasurementPackage &measurement_pack) {
     H_ = H_laser_;
     update(measurement_pack.raw_measurements);
   }
-  std::cout << P_ << std::endl << std::endl;
 
   previous_timestamp_ = measurement_pack.timestamp;
 }
@@ -107,4 +106,8 @@ void Fusion::update_process_noise(const double dt) {
          dt_3_2 * noise_ax, dt_2 * noise_ax, 0, 0,
          0, 0, dt_4_4 * noise_ay, dt_3_2 * noise_ay,
          0, 0, dt_3_2 * noise_ay, dt_2 * noise_ay;
+}
+
+Eigen::VectorXd Fusion::get_state() {
+  return x_;
 }

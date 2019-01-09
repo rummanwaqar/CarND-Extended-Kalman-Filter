@@ -24,6 +24,11 @@ namespace carnd_ekf {
      */
      void process_measurement(const carnd_ekf::MeasurementPackage& measurement_pack);
 
+     /*
+      * returns state vector
+      */
+     Eigen::VectorXd get_state();
+
    private:
      /*
       * updates the prcoess model using delta_t

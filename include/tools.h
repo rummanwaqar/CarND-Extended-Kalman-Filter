@@ -20,6 +20,9 @@ namespace carnd_ekf {
   bool read_data_file(const std::string& file_name,
     std::vector<carnd_ekf::MeasurementPackage>& measurements,
     std::vector<Eigen::VectorXd>& ground_truth);
+
+  Eigen::VectorXd calculateRMSE(const std::vector<Eigen::VectorXd> &estimations,
+                                const std::vector<Eigen::VectorXd> &ground_truth);
 } // namespace carnd_ekf
 
 #endif // _EKF_TOOLS_H_
