@@ -7,11 +7,7 @@ Fusion::Fusion() : is_init_(false), previous_timestamp_(0) {
   // intialize kalman filter variables
 
   // state X = [px, vx, py, vy]
-  x_ = Eigen::VectorXd(4); x_ << 0, 0, 0, 0;
-
-  // state covariance P (pos=1, vel=1000)
-  Eigen::VectorXd initial_var(4); initial_var << 1., 1000., 1., 1000.;
-  P_ = initial_var.asDiagonal();
+  x_ = Eigen::VectorXd(4);
 
   // state transition matrix F (check update_process_model)
   F_ = Eigen::MatrixXd(4, 4);
@@ -42,14 +38,39 @@ Fusion::Fusion() : is_init_(false), previous_timestamp_(0) {
 void Fusion::process_measurement(const MeasurementPackage &measurement_pack) {
   // initialize the kf
   if(!is_init_) {
-    // TODO: first measurement
+    // first measurement: initialize x, P
+    if(measurement_pack.sensor_type == MeasurementPackage::LIDAR) {
+      // set initial state
+      x_ << measurement_pack.raw_measurements(0), 0,
+            measurement_pack.raw_measurements(1), 0;
+      // initial covariance P (pos=1, vel=1000)
+      Eigen::VectorXd initial_var(4); initial_var << 1., 1000., 1., 1000.;
+      P_ = initial_var.asDiagonal();
+
+      std::cout << "Initialized with LIDAR message" << std::endl;
+    }
+
+    previous_timestamp_ = measurement_pack.timestamp;
     is_init_ = true;
     return;
   }
 
+  double dt = (measurement_pack.timestamp - previous_timestamp_) / 1000000.0;
+
   // prediction
+  update_process_model(dt);
+  update_process_noise(dt);
+  predict();
 
   // update
+  if(measurement_pack.sensor_type == MeasurementPackage::LIDAR) {
+    R_ = R_laser_;
+    H_ = H_laser_;
+    update(measurement_pack.raw_measurements);
+  }
+  std::cout << P_ << std::endl << std::endl;
+
+  previous_timestamp_ = measurement_pack.timestamp;
 }
 
 void Fusion::update_process_model(const double dt) {
@@ -57,7 +78,7 @@ void Fusion::update_process_model(const double dt) {
   // x = x0 + delta_t * vx
   F_ << 1, dt, 0, 0,
         0, 1, 0, 0,
-        0, 1, 1, dt,
+        0, 0, 1, dt,
         0, 0, 0, 1;
 }
 

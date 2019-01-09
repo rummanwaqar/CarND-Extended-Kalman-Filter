@@ -1,9 +1,10 @@
 #include "kalman_filter.h"
+#include <iostream>
 
 using namespace carnd_ekf;
 
 KalmanFilter::KalmanFilter() {
-  I_ = Eigen::MatrixXd::Identity(2, 2);
+  I_ = Eigen::MatrixXd::Identity(4, 4);
 }
 
 void KalmanFilter::init(Eigen::VectorXd& x_in, Eigen::MatrixXd& P_in,
@@ -41,5 +42,6 @@ void KalmanFilter::update(const Eigen::VectorXd& z) {
    * equivalent but stable derivation P = (I-KH)P(I-KH)' + KRK'
    */
   Eigen::MatrixXd I_KH = I_ - K * H_;
+
   P_ = I_KH * P_ * I_KH.transpose() + K * R_ * K.transpose();
 }
