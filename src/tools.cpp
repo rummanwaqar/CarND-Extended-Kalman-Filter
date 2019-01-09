@@ -12,8 +12,8 @@ Eigen::VectorXd carnd_ekf::get_ground_truth(std::vector<std::string>& tokens) {
   Eigen::VectorXd gt_values(4);
   gt_values <<
     std::stof(tokens[tokens.size()-4].c_str()), // x_gt
-    std::stof(tokens[tokens.size()-3].c_str()), // y_gt
     std::stof(tokens[tokens.size()-2].c_str()), // vx_gt
+    std::stof(tokens[tokens.size()-3].c_str()), // y_gt
     std::stof(tokens[tokens.size()-1].c_str()); // vy_gt
   return gt_values;
 }
@@ -70,5 +70,4 @@ Eigen::VectorXd carnd_ekf::calculateRMSE(const std::vector<Eigen::VectorXd> &est
   rmse = rmse.array().sqrt();
   // return the result
   return rmse;
-
 }

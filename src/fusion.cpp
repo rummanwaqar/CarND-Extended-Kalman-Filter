@@ -4,10 +4,14 @@
 using namespace carnd_ekf;
 
 Fusion::Fusion() : is_init_(false), previous_timestamp_(0) {
-  // intialize kalman filter variables
+  // initialize kalman filter variables
 
   // state X = [px, vx, py, vy]
   x_ = Eigen::VectorXd(4);
+
+  // initial covariance P (pos=1, vel=1000)
+  Eigen::VectorXd initial_var(4); initial_var << 1., 1000., 1., 1000.;
+  P_ = initial_var.asDiagonal();
 
   // state transition matrix F (check update_process_model)
   F_ = Eigen::MatrixXd(4, 4);
@@ -30,9 +34,8 @@ Fusion::Fusion() : is_init_(false), previous_timestamp_(0) {
   R_radar_ << 0.09, 0, 0,
               0, 0.0009, 0,
               0, 0, 0.09;
-  // measurement function
+  // measurement function (calculated with Jacobian)
   H_radar_ = Eigen::MatrixXd(3, 4); // 3 measurements, 4 states
-  // H_radar_ <<
 }
 
 void Fusion::process_measurement(const MeasurementPackage &measurement_pack) {
@@ -40,14 +43,20 @@ void Fusion::process_measurement(const MeasurementPackage &measurement_pack) {
   if(!is_init_) {
     // first measurement: initialize x, P
     if(measurement_pack.sensor_type == MeasurementPackage::LIDAR) {
-      // set initial state
+      // set initial state using lidar values (px, py)
       x_ << measurement_pack.raw_measurements(0), 0,
             measurement_pack.raw_measurements(1), 0;
-      // initial covariance P (pos=1, vel=1000)
-      Eigen::VectorXd initial_var(4); initial_var << 1., 1000., 1., 1000.;
-      P_ = initial_var.asDiagonal();
 
-      std::cout << "Initialized with LIDAR message" << std::endl;
+      std::cout << "Initialized with LIDAR message:\n" << x_ << std::endl;
+    } else if (measurement_pack.sensor_type == MeasurementPackage::RADAR) {
+      // set initial state using radar values (convert ρ,φ -> px, py)
+      float rho = measurement_pack.raw_measurements(0);
+      float phi = measurement_pack.raw_measurements(1);
+
+      x_ << std::cos(phi) * rho, 0, // px, vx
+            std::sin(phi) * rho, 0; // py, vy
+
+      std::cout << "Initialized with RADAR message:\n" << x_ << std::endl;
     }
 
     previous_timestamp_ = measurement_pack.timestamp;
@@ -67,6 +76,11 @@ void Fusion::process_measurement(const MeasurementPackage &measurement_pack) {
     R_ = R_laser_;
     H_ = H_laser_;
     update(measurement_pack.raw_measurements);
+  } else if (measurement_pack.sensor_type == MeasurementPackage::RADAR) {
+    R_ = R_radar_;
+    H_ = calculate_jacobian(x_);
+    update(measurement_pack.raw_measurements,
+           std::bind(&Fusion::measurement_function, this, std::placeholders::_1));
   }
 
   previous_timestamp_ = measurement_pack.timestamp;
@@ -110,4 +124,18 @@ void Fusion::update_process_noise(const double dt) {
 
 Eigen::VectorXd Fusion::get_state() {
   return x_;
+}
+
+Eigen::VectorXd Fusion::measurement_function(const Eigen::VectorXd& x) {
+  Eigen::VectorXd h(3);
+  float px = x(0);
+  float vx = x(1);
+  float py = x(2);
+  float vy = x(3);
+
+  float c1 = sqrt(px*px+py*py);
+  h << c1,                  // ρ
+       std::atan2(py, px),  // ϕ
+       (px*vx + py*vy)/c1;  // ρ_dot
+  return h;
 }

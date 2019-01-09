@@ -1,6 +1,7 @@
 #ifndef _EKF_FUSION_H_
 #define _EKF_FUSION_H_
 
+#include <cmath>
 #include "Eigen/Dense"
 
 #include "kalman_filter.h"
@@ -41,6 +42,12 @@ namespace carnd_ekf {
       * @param delta_t = time_k+1 - time_k
       */
      void update_process_noise(const double dt);
+
+     /*
+      * measurement function for radar. Converts state to measurement space (ekf)
+      * @param x is state
+      */
+     Eigen::VectorXd measurement_function(const Eigen::VectorXd& x);
 
    private:
      // check if kf has been initialized with first measurement

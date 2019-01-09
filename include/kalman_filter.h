@@ -1,6 +1,7 @@
 #ifndef _EKF_KALMAN_FILTER_H_
 #define _EKF_KALMAN_FILTER_H_
 
+#include <functional>
 #include "Eigen/Dense"
 
 namespace carnd_ekf {
@@ -24,8 +25,17 @@ namespace carnd_ekf {
 
     /*
      * updates the state using measurement and kalman equations
+     * @param z = measurement
+     * @param h = measurement function (optional only for EKF)
      */
-    void update(const Eigen::VectorXd& z);
+    void update(const Eigen::VectorXd& z,
+                std::function<Eigen::VectorXd (const Eigen::VectorXd&)> h = nullptr);
+
+    /*
+     * calculates Jacobian for EKF
+     * @param x_state linearize around x_state
+     */
+    Eigen::MatrixXd calculate_jacobian(const Eigen::VectorXd& x_state);
 
   protected:
     // state vector

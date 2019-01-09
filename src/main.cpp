@@ -22,11 +22,8 @@ int main() {
   std::vector<Eigen::VectorXd> estimates;
   // process all measurements
   for(auto const& z : measurements) {
-    if(z.sensor_type == carnd_ekf::MeasurementPackage::LIDAR) {
-      fusion.process_measurement(z);
-      estimates.push_back(fusion.get_state());
-      // std::cout << fusion.get_state() << std::endl;
-    }
+    fusion.process_measurement(z);
+    estimates.push_back(fusion.get_state());
   }
 
   Eigen::VectorXd RMSE = carnd_ekf::calculateRMSE(estimates, ground_truth);
