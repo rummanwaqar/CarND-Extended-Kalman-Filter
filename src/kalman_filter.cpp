@@ -17,7 +17,7 @@ void KalmanFilter::init(Eigen::VectorXd& x_in, Eigen::MatrixXd& P_in,
   Q_ = Q_in;
 }
 
-void KalmanFilter::predict(double delta_T) {
+void KalmanFilter::predict() {
   // prior
   x_ = F_ * x_;
   P_ = F_ * P_ * F_.transpose() + Q_;

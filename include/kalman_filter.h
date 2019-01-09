@@ -28,18 +28,18 @@ namespace carnd_ekf {
     void init(Eigen::VectorXd& x_in, Eigen::MatrixXd& P_in, Eigen::MatrixXd& F_in,
               Eigen::MatrixXd& H_in, Eigen::MatrixXd& R_in, Eigen::MatrixXd& Q_in);
 
+  protected:
     /*
      * predicts the state and state covariance using the process model
-     * @param delta_T time between k and k+1 in seconds
      */
-    void predict(double delta_T = 1.0);
+    void predict();
 
     /*
      * updates the state using measurement and kalman equations
      */
     void update(const Eigen::VectorXd& z);
 
-  public:
+  protected:
     // state vector
     Eigen::VectorXd x_;
 
@@ -58,6 +58,7 @@ namespace carnd_ekf {
     // measurement covariance
     Eigen::MatrixXd R_;
 
+  private:
     // identity matrix
     Eigen::MatrixXd I_;
   }; // class KalmanFilter
