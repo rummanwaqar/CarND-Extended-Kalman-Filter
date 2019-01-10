@@ -27,15 +27,32 @@ namespace carnd_ekf {
    */
   Eigen::VectorXd get_ground_truth(std::vector<std::string>& tokens);
 
+  /*
+   * read data file and extract measurements and ground truth
+   * @param file_name name of file
+   * @param measurements vector of measurements
+   * @param ground_truth vector of ground truth
+   */
   bool read_data_file(const std::string& file_name,
     std::vector<carnd_ekf::MeasurementPackage>& measurements,
     std::vector<Eigen::VectorXd>& ground_truth);
 
-  Eigen::VectorXd calculateRMSE(const std::vector<Eigen::VectorXd> &estimations,
-                                const std::vector<Eigen::VectorXd> &ground_truth);
-
+  /*
+   * write estimations to csv file ('\t')
+   * format px py vx vy
+   * @param file_name output file name
+   * @param estimation vector of estimations (x_)
+   */
   void write_output_csv(const std::string& file_name,
                         const std::vector<Eigen::VectorXd> &estimations);
+
+  /*
+   * calculate root mean square error between estimations and ground truth
+   * @param estimations vector of estimations vectors
+   * @param ground_truth vector of ground truth vectors
+   */
+  Eigen::VectorXd calculateRMSE(const std::vector<Eigen::VectorXd> &estimations,
+                                const std::vector<Eigen::VectorXd> &ground_truth);
 
 } // namespace carnd_ekf
 
