@@ -8,6 +8,7 @@
 #include "tools.h"
 
 std::string FILE_NAME = "../data/obj_pose-laser-radar-synthetic-input.txt";
+std::string OUTPUT_FILE = "../data/output.txt";
 
 int main() {
   // load measurements
@@ -22,10 +23,15 @@ int main() {
   std::vector<Eigen::VectorXd> estimates;
   // process all measurements
   for(auto const& z : measurements) {
-    fusion.process_measurement(z);
-    estimates.push_back(fusion.get_state());
+    if(z.sensor_type == carnd_ekf::MeasurementPackage::RADAR) {
+      fusion.process_measurement(z);
+      estimates.push_back(fusion.get_state());
+    }
   }
 
   Eigen::VectorXd RMSE = carnd_ekf::calculateRMSE(estimates, ground_truth);
   std::cout << RMSE << std::endl;
+
+  carnd_ekf::write_output_csv(OUTPUT_FILE, estimates);
+
 }

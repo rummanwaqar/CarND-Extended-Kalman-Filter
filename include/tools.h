@@ -34,6 +34,9 @@ namespace carnd_ekf {
   Eigen::VectorXd calculateRMSE(const std::vector<Eigen::VectorXd> &estimations,
                                 const std::vector<Eigen::VectorXd> &ground_truth);
 
+  void write_output_csv(const std::string& file_name,
+                        const std::vector<Eigen::VectorXd> &estimations);
+
 } // namespace carnd_ekf
 
 #endif // _EKF_TOOLS_H_
