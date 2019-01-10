@@ -126,6 +126,29 @@ Eigen::VectorXd Fusion::get_state() {
   return x_;
 }
 
+Eigen::MatrixXd Fusion::calculate_jacobian(const Eigen::VectorXd& x_state) {
+  Eigen::MatrixXd Hj(3,4);
+  // recover state parameters
+  float px = x_state(0);
+  float vx = x_state(1);
+  float py = x_state(2);
+  float vy = x_state(3);
+  // pre-compute a set of terms to avoid repeated calculation
+  float c1 = px*px+py*py;
+  float c2 = sqrt(c1);
+  float c3 = (c1*c2);
+  // check division by zero
+  if (fabs(c1) < 0.0001) {
+    throw std::runtime_error("Division by zero error");
+  }
+  // compute the Jacobian matrix
+  Hj << (px/c2), 0, (py/c2), 0,
+        -(py/c1), 0, (px/c1), 0,
+        py*(vx*py - vy*px)/c3, px/c2, px*(px*vy - py*vx)/c3, py/c2;
+  return Hj;
+}
+
+
 Eigen::VectorXd Fusion::measurement_function(const Eigen::VectorXd& x) {
   Eigen::VectorXd h(3);
   float px = x(0);

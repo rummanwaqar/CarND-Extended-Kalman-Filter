@@ -49,6 +49,12 @@ namespace carnd_ekf {
       */
      Eigen::VectorXd measurement_function(const Eigen::VectorXd& x);
 
+     /*
+      * calculates Jacobian for radar measurement to linearize measurement function
+      * @param x_state current state to linearize around
+      */
+     Eigen::MatrixXd calculate_jacobian(const Eigen::VectorXd& x_state);
+
    private:
      // check if kf has been initialized with first measurement
      bool is_init_;
