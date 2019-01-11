@@ -49,8 +49,10 @@ def read_output_file(file_name):
             estimates.append({
                 'px': data[0],
                 'py': data[1],
-                'vx': data[2],
-                'vy': data[3]
+                'rmse_x': data[2],
+                'rmse_y': data[3],
+                'rmse_vx': data[4],
+                'rmse_vy': data[5]
             })
     return estimates
 
@@ -85,5 +87,14 @@ if __name__ == '__main__':
              'c-')
 
     plt.legend(['lidar', 'radar', 'ground truth', 'estimate'])
+
+    # plot rmse
+    plt.figure(1)
+    plt.title("RMSE Graph")
+    plt.plot([d['rmse_x'] for d in estimates], 'b-')
+    plt.plot([d['rmse_y'] for d in estimates], 'g-')
+    plt.plot([d['rmse_vx'] for d in estimates], 'r-')
+    plt.plot([d['rmse_vy'] for d in estimates], 'y-')
+    plt.legend(['RMSE X', 'RMSE Y', 'RMSE VX', 'RMSE VY'])
 
     plt.show()
