@@ -2,11 +2,14 @@
 #define _EKF_IO_H_
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <functional>
 #include <uWS/uWS.h>
 #include "Eigen/Dense"
+
 #include "json.h"
+#include "measurement_package.h"
 
 namespace carnd_ekf {
   class SimIO {
@@ -34,6 +37,8 @@ namespace carnd_ekf {
     // takes a string and returns an eigen vector with px, py rmse(4)
     std::function< Eigen::VectorXd(const std::string&& measurement_string) > callbackFunc_;
   };
+
+
 } // namespace carnd_ekf
 
 #endif
