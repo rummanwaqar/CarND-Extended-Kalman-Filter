@@ -69,8 +69,6 @@ namespace carnd_ekf {
      // measurement function
      Eigen::MatrixXd H_laser_;
      Eigen::MatrixXd H_radar_; // should be Jacobian
-
-     // RMSE Tools Tools
   }; // class Fusion
 } // namespace carnd_ekf
 
