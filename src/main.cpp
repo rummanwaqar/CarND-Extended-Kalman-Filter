@@ -10,16 +10,16 @@
 
 int PORT = 4567;
 
-carnd_ekf::Fusion fusion;
+carnd_ekf::Fusion ekf_fusion;
 
-Eigen::VectorXd process(const carnd_ekf::MeasurementPackage& meas_pack,
+Eigen::VectorXd process_ekf(const carnd_ekf::MeasurementPackage& meas_pack,
                         const Eigen::VectorXd& ground_truth) {
   static std::vector<Eigen::VectorXd> estimates;
   static std::vector<Eigen::VectorXd> ground_truths;
 
   // process
-  fusion.process_measurement(meas_pack);
-  Eigen::VectorXd state = fusion.get_state();
+  ekf_fusion.process_measurement(meas_pack);
+  Eigen::VectorXd state = ekf_fusion.get_state();
   estimates.push_back(state);
   ground_truths.push_back(ground_truth);
 
@@ -31,6 +31,17 @@ Eigen::VectorXd process(const carnd_ekf::MeasurementPackage& meas_pack,
   output << state(0), state(2), RMSE(0), RMSE(2), RMSE(1), RMSE(3);
   return output;
 }
+
+Eigen::VectorXd process_ukf(const carnd_ekf::MeasurementPackage& meas_pack,
+                            const Eigen::VectorXd& ground_truth) {
+    static std::vector<Eigen::VectorXd> estimates;
+    static std::vector<Eigen::VectorXd> ground_truths;
+
+    // process
+
+    Eigen::VectorXd output(6);
+    return output;
+  }
 
 int main(int argc, char** argv) {
   carnd_ekf::BaseIO* io_interface;
@@ -52,12 +63,12 @@ int main(int argc, char** argv) {
     // file mode
     std::cout << "Reading from :" << input_file_name << std::endl;
     std::cout << "Writing to: " << output_file_name << std::endl;
-    io_interface = new carnd_ekf::FileIO(process, input_file_name,
+    io_interface = new carnd_ekf::FileIO(process_ukf, input_file_name,
                                          output_file_name);
   } else {
     // sim mode
     std::cout << "Connecting to simulator" << std::endl;
-    io_interface = new carnd_ekf::SimIO(process, PORT);
+    io_interface = new carnd_ekf::SimIO(process_ukf, PORT);
   }
 
   io_interface->run();
