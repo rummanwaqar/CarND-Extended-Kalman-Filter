@@ -9,11 +9,9 @@
 namespace carnd_ekf {
   class Ukf {
   public:
-    Ukf(int n) {
+    Ukf(SigmaPoints& points);
 
-    }
-
-    ~Ukf() {}
+    ~Ukf();
 
     void predict(double dt);
 

@@ -6,11 +6,30 @@
 #include "Eigen/Dense"
 
 namespace carnd_ekf {
+  class SigmaPoints {
+  public:
+    /*
+     * return reference to mean weights
+     */
+    virtual const Eigen::VectorXd& get_Wm() = 0;
+
+    /*
+     * return reference to covariance weights
+     */
+    virtual const Eigen::VectorXd& get_Wc() = 0;
+
+    /*
+     * Computes the sigma points for an unscented Kalman filter
+     * given the mean (x) and covariance(P) of the filter.
+     */
+    virtual Eigen::MatrixXd get_sigma_points(Eigen::VectorXd& x, Eigen::MatrixXd& P) = 0;
+  };
+
   /*
    * Generates sigma points and weights according to Van der Merwe's
    * 2004 dissertation for the UnscentedKalmanFilter class.
    */
-  class MerweScaledSigmaPoints {
+  class MerweScaledSigmaPoints : public SigmaPoints {
   public:
     /*
      * initializes sigma point weights

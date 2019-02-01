@@ -61,15 +61,13 @@ int main(int argc, char** argv) {
     output_file_name = "../data/output.txt";
   }
 
-  Eigen::VectorXd x = Eigen::VectorXd(4); x << 1, 2, 3, 4;
-  Eigen::VectorXd initial_var(4); initial_var << 1., 1000., 1., 1000.;
-  Eigen::MatrixXd P = initial_var.asDiagonal();
+
 
 
   carnd_ekf::MerweScaledSigmaPoints sigma_points(4, 1e-3, 2., 0, [](const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
     return x - y;
   });
-  std::cout << sigma_points.get_sigma_points(x, P) << std::endl;
+  carnd_ekf::Ukf ukf(sigma_points);
 
   //
   // if(input_file_name != "") {
