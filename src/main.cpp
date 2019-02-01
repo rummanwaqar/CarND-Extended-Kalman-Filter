@@ -7,6 +7,8 @@
 #include "io.h"
 #include "fusion.h"
 #include "tools.h"
+#include "ukf.h"
+#include "sigma_points.h"
 
 int PORT = 4567;
 
@@ -34,14 +36,14 @@ Eigen::VectorXd process_ekf(const carnd_ekf::MeasurementPackage& meas_pack,
 
 Eigen::VectorXd process_ukf(const carnd_ekf::MeasurementPackage& meas_pack,
                             const Eigen::VectorXd& ground_truth) {
-    static std::vector<Eigen::VectorXd> estimates;
-    static std::vector<Eigen::VectorXd> ground_truths;
+  static std::vector<Eigen::VectorXd> estimates;
+  static std::vector<Eigen::VectorXd> ground_truths;
 
-    // process
+  // process
 
-    Eigen::VectorXd output(6);
-    return output;
-  }
+  Eigen::VectorXd output(6);
+  return output;
+}
 
 int main(int argc, char** argv) {
   carnd_ekf::BaseIO* io_interface;
@@ -59,19 +61,30 @@ int main(int argc, char** argv) {
     output_file_name = "../data/output.txt";
   }
 
-  if(input_file_name != "") {
-    // file mode
-    std::cout << "Reading from :" << input_file_name << std::endl;
-    std::cout << "Writing to: " << output_file_name << std::endl;
-    io_interface = new carnd_ekf::FileIO(process_ukf, input_file_name,
-                                         output_file_name);
-  } else {
-    // sim mode
-    std::cout << "Connecting to simulator" << std::endl;
-    io_interface = new carnd_ekf::SimIO(process_ukf, PORT);
-  }
+  Eigen::VectorXd x = Eigen::VectorXd(4); x << 1, 2, 3, 4;
+  Eigen::VectorXd initial_var(4); initial_var << 1., 1000., 1., 1000.;
+  Eigen::MatrixXd P = initial_var.asDiagonal();
 
-  io_interface->run();
-  delete io_interface;
+
+  carnd_ekf::MerweScaledSigmaPoints sigma_points(4, 1e-3, 2., 0, [](const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
+    return x - y;
+  });
+  std::cout << sigma_points.get_sigma_points(x, P) << std::endl;
+
+  //
+  // if(input_file_name != "") {
+  //   // file mode
+  //   std::cout << "Reading from :" << input_file_name << std::endl;
+  //   std::cout << "Writing to: " << output_file_name << std::endl;
+  //   io_interface = new carnd_ekf::FileIO(process_ukf, input_file_name,
+  //                                        output_file_name);
+  // } else {
+  //   // sim mode
+  //   std::cout << "Connecting to simulator" << std::endl;
+  //   io_interface = new carnd_ekf::SimIO(process_ukf, PORT);
+  // }
+  //
+  // io_interface->run();
+  // delete io_interface;
   return 0;
 }
