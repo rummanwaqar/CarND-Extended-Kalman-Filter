@@ -45,6 +45,14 @@ Eigen::VectorXd process_ukf(const carnd_ekf::MeasurementPackage& meas_pack,
   return output;
 }
 
+Eigen::VectorXd process_fn(const Eigen::VectorXd& x, double dt) {
+  return x;
+}
+
+Eigen::VectorXd residual_fn(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
+  return x - y;
+}
+
 int main(int argc, char** argv) {
   carnd_ekf::BaseIO* io_interface;
 
@@ -61,13 +69,10 @@ int main(int argc, char** argv) {
     output_file_name = "../data/output.txt";
   }
 
+  carnd_ekf::MerweScaledSigmaPoints sigma_points(4, 1e-3, 2., 0, residual_fn);
+  carnd_ekf::Ukf ukf(4, std::move(sigma_points), process_fn, residual_fn);
 
-
-
-  carnd_ekf::MerweScaledSigmaPoints sigma_points(4, 1e-3, 2., 0, [](const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
-    return x - y;
-  });
-  carnd_ekf::Ukf ukf(sigma_points);
+  ukf.predict(0.1);
 
   //
   // if(input_file_name != "") {
